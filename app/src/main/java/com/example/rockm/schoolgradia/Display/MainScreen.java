@@ -75,8 +75,8 @@ public class MainScreen extends Fragment {
                         throw new NullPointerException();
                     IndividualScore individualScore= new IndividualScore(score,name);
                     subScore.addGrade(individualScore);
-                    scoreTextView.setText("Grade: "+subScore.getScore()+"");
-                    individualScoreTextView.setText("|"+individualScore.getName()+"|: "+individualScore.getScore());
+                    scoreTextView.setText("Grade: "+subScore.getScore()+"%");
+                    individualScoreTextView.setText(""+individualScore.getName()+": "+individualScore.getScore());
                     individualScoreTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     layout.addView(individualScoreTextView);
                 }
