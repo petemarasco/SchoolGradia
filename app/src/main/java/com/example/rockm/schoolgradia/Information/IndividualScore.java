@@ -5,13 +5,12 @@ package com.example.rockm.schoolgradia.Information;
  */
 
 public class IndividualScore extends Score {
-    @Override
-    public void setScore(int scoreToSet) {
-        super.setScore(scoreToSet);
-    }
 
-    @Override
-    public int getScore() {
-        return super.getScore();
+    public IndividualScore(int score,String name){
+        setScore(score);
+        setName(name);
+    }
+    public void changeGrade(int score){
+        setScore(score);
     }
 }

@@ -19,11 +19,11 @@ import com.example.rockm.schoolgradia.R;
 
 
 public class MainScreen extends Fragment {
-    private Score score;
+    private IndividualScore score;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        score= new IndividualScore();
+        score= new IndividualScore(0,"Example");
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.mainscreen, container, false);
 
@@ -31,7 +31,7 @@ public class MainScreen extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
-        score.setScore(100);
+        score.changeGrade(100);
        TextView scoreText= getActivity().findViewById(R.id.textScore);
         scoreText.setText(score.getScore()+"");
         super.onViewCreated(view, savedInstanceState);
@@ -58,7 +58,7 @@ public class MainScreen extends Fragment {
             public void onClick(View view) {
                 View popUp = getActivity().findViewById(R.id.popUp);
                 TextView scoreToSetText = getActivity().findViewById(R.id.textScoreToBeSet);
-                score.setScore(Integer.parseInt(scoreToSetText.getText().toString()));
+                score.changeGrade(Integer.parseInt(scoreToSetText.getText().toString()));
                 TextView scoreText= getActivity().findViewById(R.id.textScore);
                 scoreText.setText(score.getScore()+"");
                 scoreText.setVisibility(View.VISIBLE);

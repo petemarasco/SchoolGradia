@@ -5,11 +5,20 @@ package com.example.rockm.schoolgradia.Information;
  */
 
 public abstract class Score {
-    public Score(){
 
+    private String name;
+
+    public String getName() {
+        return name;
     }
+
+    protected void setName(String name) {
+        this.name = name;
+    }
+
     private int score;
-    public void setScore(int scoreToSet){
+
+    protected void setScore(int scoreToSet){
         score=scoreToSet;
     }
     public int getScore(){
