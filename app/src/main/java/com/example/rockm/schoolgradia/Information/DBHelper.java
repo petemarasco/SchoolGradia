@@ -78,7 +78,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean insertIndividual(String name, Integer grade, String subject_name){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues= new ContentValues();
-        contentValues.put(INDIVIDUALS_COLUMN_GRADE,name);
+        contentValues.put(INDIVIDUALS_COLUMN_NAME,name);
         contentValues.put( INDIVIDUALS_COLUMN_GRADE,grade);
         contentValues.put(INDIVIDUALS_COLUMN_SUBJECT_NAME,subject_name);
         db.insert(INDIVIDUALS_TABLE_NAME,null,contentValues);
@@ -92,7 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean updateIndividual(String name, Integer grade, String subject_name){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues= new ContentValues();
-        contentValues.put(INDIVIDUALS_COLUMN_GRADE,name);
+        contentValues.put(INDIVIDUALS_COLUMN_NAME,name);
         contentValues.put( INDIVIDUALS_COLUMN_GRADE,grade);
         contentValues.put(INDIVIDUALS_COLUMN_SUBJECT_NAME,subject_name);
         db.update(INDIVIDUALS_TABLE_NAME,contentValues,"name ="+name, null);
