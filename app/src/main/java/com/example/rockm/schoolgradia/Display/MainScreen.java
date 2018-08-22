@@ -11,9 +11,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.rockm.schoolgradia.Information.DBHelper;
 import com.example.rockm.schoolgradia.Information.IndividualScore;
+import com.example.rockm.schoolgradia.Information.Score;
 import com.example.rockm.schoolgradia.Information.SubjectScore;
 import com.example.rockm.schoolgradia.R;
+
+import java.util.ArrayList;
 
 import static android.R.attr.name;
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
@@ -25,10 +29,14 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class MainScreen extends Fragment {
     private SubjectScore subScore;
+    private DBHelper DB;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         subScore= new SubjectScore("Example");
+
+
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.mainscreen, container, false);
 
@@ -44,7 +52,10 @@ public class MainScreen extends Fragment {
         popPopUpButton.setOnClickListener(popUpListener());
         Button setGrade = getActivity().findViewById(R.id.Confirm);
         setGrade.setOnClickListener(gradeAddListener());
-
+        Button reset = getActivity().findViewById(R.id.Reset);
+        reset.setOnClickListener(resetListener());
+        Context thisContext = this.getContext();
+        DB = new DBHelper(thisContext);
     }
 
     private View.OnClickListener popUpListener(){
@@ -54,6 +65,8 @@ public class MainScreen extends Fragment {
                     popUp.setVisibility(View.VISIBLE);
                     TextView scoreText= getActivity().findViewById(R.id.textGradeScore);
                     scoreText.setVisibility(View.INVISIBLE);
+                LinearLayout layout = getActivity().findViewById(R.id.layoutScoreList);
+                layout.setVisibility(View.INVISIBLE);
                 }
         };
     }
@@ -61,25 +74,22 @@ public class MainScreen extends Fragment {
     private View.OnClickListener gradeAddListener(){
         return new View.OnClickListener() {
             public void onClick(View view) {
-                View popUp = getActivity().findViewById(R.id.popUp);
+                //Initialize the Views of the two fields of user input
                 TextView scoreToSetTextView = getActivity().findViewById(R.id.textIndividualScore);
-                TextView scoreTextView= getActivity().findViewById(R.id.textGradeScore);
                 TextView scoreNameTextView = getActivity().findViewById(R.id.textScoreName);
-                TextView individualScoreTextView= new TextView(getActivity());
-                LinearLayout layout = getActivity().findViewById(R.id.layoutScoreList);
-                layout.setVisibility(View.INVISIBLE);
                 try{
+                    //Get the two user inputs
                     Integer score=Integer.parseInt(scoreToSetTextView.getText().toString());
                     String name = scoreNameTextView.getText().toString();
+                    //If no name or name Already taken, throw null Pointer Exception
                     if (name.isEmpty())
                         throw new NullPointerException();
-                    IndividualScore individualScore= new IndividualScore(score,name);
-                    subScore.addGrade(individualScore);
-                    scoreTextView.setText("Grade: "+subScore.getScore()+"%");
-                    individualScoreTextView.setText(""+individualScore.getName()+": "+individualScore.getScore());
-                    individualScoreTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    layout.addView(individualScoreTextView);
+                    for(Score s: DB.getGrades())
+                        if(s.getName()==name)
+                            throw new NullPointerException();
+                    DB.insertGrade("Butts","Butts",name,score.intValue());
                 }
+                //If invalid score, throw this Exception
                 catch (NumberFormatException e){
                     Context context = getActivity().getApplicationContext();
                     CharSequence text="Invalid score";
@@ -87,6 +97,7 @@ public class MainScreen extends Fragment {
                     Toast toast=Toast.makeText(context,text,duration);
                     toast.show();
                 }
+                //If invalid name, throw this Exception
                 catch (NullPointerException e){
                     Context context = getActivity().getApplicationContext();
                     CharSequence text="Invalid Name";
@@ -94,9 +105,57 @@ public class MainScreen extends Fragment {
                     Toast toast=Toast.makeText(context,text,duration);
                     toast.show();
                 }
-                scoreTextView.setVisibility(View.VISIBLE);
-                popUp.setVisibility(View.INVISIBLE);
-                layout.setVisibility(View.VISIBLE);
+            displayGrades();
+            }
+        };
+    }
+
+    private void displayGrades(){
+        //Initialize Views
+        View popUp = getActivity().findViewById(R.id.popUp);
+        TextView scoreTextView= getActivity().findViewById(R.id.textGradeScore);
+        LinearLayout layout = getActivity().findViewById(R.id.layoutScoreList);
+        //Reset Layout
+        layout.removeAllViews();
+        //If there some scores
+        if(DB.numberOfindividuals()!=0){
+            ArrayList<Score> scores=DB.getGrades();
+            scoreTextView.setText("Grade: "+DB.getTotalGrade()+"%");
+            for(Score s : scores){
+                TextView individualScoreTextView= new TextView(getActivity());
+                individualScoreTextView.setText(""+s.getName()+": "+s.getScore());
+                individualScoreTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                layout.addView(individualScoreTextView);
+                Button deleteGradeButton = new Button(getActivity());
+                deleteGradeButton.setText("Delete");
+                deleteGradeButton.setOnClickListener(gradeDelete(s.getName()));
+                layout.addView(deleteGradeButton);
+            }
+            scoreTextView.setVisibility(View.VISIBLE);
+            popUp.setVisibility(View.INVISIBLE);
+            layout.setVisibility(View.VISIBLE);
+        }
+
+
+
+
+    }
+    private  View.OnClickListener gradeDelete(final String nameIndiv){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DB.deleteIndividual(nameIndiv);
+                displayGrades();
+            }
+        };
+    }
+    private  View.OnClickListener resetListener(){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DB.resetDB();
+                displayGrades();
+
             }
         };
     }
