@@ -133,15 +133,15 @@ public class DBHelper extends SQLiteOpenHelper {
         theCursorIndivScores.moveToFirst();
         theCursorNames.moveToFirst();
         Score temp;
+        if(theCursorIndivScores.getCount()>0) {
+            do {
+                int score = theCursorIndivScores.getInt(theCursorIndivScores.getColumnIndex(GRADES_COLUMN_GRADE));
+                String name = theCursorNames.getString(theCursorNames.getColumnIndex(GRADES_COLUMN_INDIVIDUAL_NAME));
+                temp = new IndividualScore(score, name);
+                scores.add(temp);
 
-        do{
-            int score=theCursorIndivScores.getInt(theCursorIndivScores.getColumnIndex(GRADES_COLUMN_GRADE));
-            String name =theCursorNames.getString(theCursorNames.getColumnIndex(GRADES_COLUMN_INDIVIDUAL_NAME));
-            temp= new IndividualScore(score,name);
-            scores.add(temp);
-
-        }while (theCursorIndivScores.moveToNext()&&theCursorNames.moveToNext());
-
+            } while (theCursorIndivScores.moveToNext() && theCursorNames.moveToNext());
+        }
 
         return scores;
     }
