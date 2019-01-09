@@ -9,16 +9,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
-import static android.R.attr.id;
 import static android.R.attr.name;
-import static android.R.attr.version;
 
 /**
  * Created by rockm on 3/20/2018.
  */
 
 /**
- * This Database Handles all of the
+ * This Database Handles all of the Information
+ * It resets,inserts,deletes, and gives size of DB
  */
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "SubjectDBName.db";
@@ -62,44 +61,103 @@ public class DBHelper extends SQLiteOpenHelper {
 //        int numRows = (int) DatabaseUtils.queryNumEntries(db, SUBJECTS_TABLE_NAME);
 //        return numRows;
 //    }
+
+    /**
+     * Resets the Database
+     */
     public void resetDB(){
+        //Get DB
         SQLiteDatabase db = this.getWritableDatabase();
+        //Delete Table
         db.execSQL("drop table "+GRADES_TABLE_NAME);
+        //Create Table
         db.execSQL(
                 "create table "+ GRADES_TABLE_NAME+
                         " ("+GRADES_COLUMN_INDIVIDUAL_NAME+" text UNIQUE, "+GRADES_COLUMN_CRITERIA_NAME+" text, "+GRADES_COLUMN_SUBJECT_NAME+" text, "+GRADES_COLUMN_GRADE+" integer)"
         );
     }
-    public boolean updateGrade(String subjectName,String criteriaName,String individualName, Integer grade){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues= new ContentValues();
 
-        db.update(GRADES_TABLE_NAME, contentValues, "name="+name,null);
-        return true;
-    }
-    public void deleteSubject (String name) {
+    /**
+     * Update the Grade
+     * @param subjectName
+     * @param criteriaName
+     * @param individualName
+     * @param grade
+     * @return success
+     */
+
+    public boolean updateGrade(String subjectName,String criteriaName,String individualName, Integer grade){
+        //Gets the Datatbase
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(GRADES_TABLE_NAME,
-                GRADES_COLUMN_SUBJECT_NAME+"="+name,
-                null);
-    }
-    public boolean insertGrade(String subjectName,String criteriaName,String individualName, Integer grade){
-        SQLiteDatabase db = this.getWritableDatabase();
+        //Object that holds the information about the grade
         ContentValues contentValues= new ContentValues();
+        //Inserting the values
         contentValues.put(GRADES_COLUMN_INDIVIDUAL_NAME,individualName);
         contentValues.put(GRADES_COLUMN_CRITERIA_NAME,criteriaName);
         contentValues.put(GRADES_COLUMN_SUBJECT_NAME,subjectName);
         contentValues.put(GRADES_COLUMN_GRADE,grade);
+        //Updating the Database
+        db.update(GRADES_TABLE_NAME, contentValues, "name="+name,null);
+        return true;
+    }
+
+    /**
+     *  Removes the specified grade from the Database
+     * @param name name of the grade to be removed
+     */
+    public void deleteSubject (String name) {
+        //Gets the DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        //Deletes the object
+        db.delete(GRADES_TABLE_NAME,
+                GRADES_COLUMN_SUBJECT_NAME+"="+name,
+                null);
+    }
+
+    /**
+     * Adds the Grade to the Database
+     * @param subjectName
+     * @param criteriaName
+     * @param individualName
+     * @param grade
+     * @return That the operation worked
+     */
+
+    public boolean insertGrade(String subjectName,String criteriaName,String individualName, Integer grade){
+        //Gets the Datatbase
+        SQLiteDatabase db = this.getWritableDatabase();
+        //Object that holds the information about the grade
+        ContentValues contentValues= new ContentValues();
+        //Inserting the values
+        contentValues.put(GRADES_COLUMN_INDIVIDUAL_NAME,individualName);
+        contentValues.put(GRADES_COLUMN_CRITERIA_NAME,criteriaName);
+        contentValues.put(GRADES_COLUMN_SUBJECT_NAME,subjectName);
+        contentValues.put(GRADES_COLUMN_GRADE,grade);
+        //Updating the Database
         db.insert(GRADES_TABLE_NAME,null,contentValues);
         return true;
     }
-    public int numberOfindividuals(){
+
+    /**
+     * Size of Grade
+     * @return The number of Individuals
+     */
+    public int numberOfIndividuals(){
+        //Gets the Database
         SQLiteDatabase db = this.getReadableDatabase();
+        //get the number of rows, which equals the number of individuals
         int numRows = (int) DatabaseUtils.queryNumEntries(db, GRADES_TABLE_NAME);
         return numRows;
     }
+
+    /**
+     * Deletes the grade base off String, name, given
+     * @param name
+     * @return The grade deleted
+     */
     public Integer deleteIndividual (String name) {
         SQLiteDatabase db = this.getWritableDatabase();
+        //Deletes the individual
         return db.delete(GRADES_TABLE_NAME,
                 GRADES_COLUMN_INDIVIDUAL_NAME+"="+"'"+name+"'",
                 null);
@@ -111,20 +169,34 @@ public class DBHelper extends SQLiteOpenHelper {
                 GRADES_COLUMN_CRITERIA_NAME+"="+name,
                 null);
     }
-    public Integer getTotalGrade(){
-        Integer result=0;
-        int count=0;
+
+    /**
+     * Gets the total grade of Student
+     * @return the total
+     */
+    public Integer getTotalGrade() {
+        Integer result = 0;
+        int count = 0;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor theCursor =  db.rawQuery( "select "+ GRADES_COLUMN_GRADE +" from "+GRADES_TABLE_NAME, null );
+        //An iterator that goes over the grades
+        Cursor theCursor = db.rawQuery("select " + GRADES_COLUMN_GRADE + " from " + GRADES_TABLE_NAME, null);
+        //Moves the iterator to the beginning
         theCursor.moveToFirst();
-        do{
-            result+=theCursor.getInt(theCursor.getColumnIndex(GRADES_COLUMN_GRADE));
+        //If the there is no grades, set it as 0
+        if (numberOfIndividuals() < 1)
+            return 0;
+        //Sums up all the grades
+        do {
+            result += theCursor.getInt(theCursor.getColumnIndex(GRADES_COLUMN_GRADE));
             count++;
-        }while (theCursor.moveToNext());
-        result/=count;
+        } while (theCursor.moveToNext());
+        result /= count;
         return result;
     }
 
+    /**
+     * @return an arrayList of the grades
+     */
     public ArrayList<Score> getGrades(){
         ArrayList<Score> scores = new ArrayList<Score>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -133,7 +205,7 @@ public class DBHelper extends SQLiteOpenHelper {
         theCursorIndivScores.moveToFirst();
         theCursorNames.moveToFirst();
         Score temp;
-        if(theCursorIndivScores.getCount()>0) {
+        if(numberOfIndividuals()>0) {
             do {
                 int score = theCursorIndivScores.getInt(theCursorIndivScores.getColumnIndex(GRADES_COLUMN_GRADE));
                 String name = theCursorNames.getString(theCursorNames.getColumnIndex(GRADES_COLUMN_INDIVIDUAL_NAME));

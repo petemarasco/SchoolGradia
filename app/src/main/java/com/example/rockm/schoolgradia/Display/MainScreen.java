@@ -12,15 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.rockm.schoolgradia.Information.DBHelper;
-import com.example.rockm.schoolgradia.Information.IndividualScore;
 import com.example.rockm.schoolgradia.Information.Score;
 import com.example.rockm.schoolgradia.Information.SubjectScore;
 import com.example.rockm.schoolgradia.R;
 
 import java.util.ArrayList;
-
-import static android.R.attr.name;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 /**
  * Created by rockm on 3/4/2018.
@@ -84,6 +80,7 @@ public class MainScreen extends Fragment {
                     //If no name or name Already taken, throw null Pointer Exception
                     if (name.isEmpty())
                         throw new NullPointerException();
+
                     for(Score s: DB.getGrades())
                         if(s.getName()==name)
                             throw new NullPointerException();
@@ -117,10 +114,11 @@ public class MainScreen extends Fragment {
         LinearLayout layout = getActivity().findViewById(R.id.layoutScoreList);
         //Reset Layout
         layout.removeAllViews();
+
         //If there some scores
-        if(DB.numberOfindividuals()!=0){
+        if(DB.numberOfIndividuals()!=0){
             ArrayList<Score> scores=DB.getGrades();
-            scoreTextView.setText("Grade: "+DB.getTotalGrade()+"%");
+
             for(Score s : scores){
                 TextView individualScoreTextView= new TextView(getActivity());
                 individualScoreTextView.setText(""+s.getName()+": "+s.getScore());
@@ -135,7 +133,8 @@ public class MainScreen extends Fragment {
             popUp.setVisibility(View.INVISIBLE);
             layout.setVisibility(View.VISIBLE);
         }
-
+        //set the grade
+        scoreTextView.setText("Grade: "+DB.getTotalGrade()+"%");
 
 
 
